@@ -1,0 +1,93 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE,message=FALSE,warning=F}
+knitr::opts_chunk$set(echo = F)
+library(dplyr);library(lubridate);library(readr);library(highcharter);library(ggplot2)
+load("limits_report.Rdata")
+```
+
+Good `r ifelse(am(Sys.time()),"morning","afternoon")`,
+
+Please find attached Loan limits and multiple loans analysis.
+
+### Insights
+
+#### Loan Limits
+```{r}
+abovelimns = reports$limits_check
+duplicates_mobile = reports$duplicates_summary$mobile
+duplicates_accid = reports$duplicates_summary$accountid
+duplicates_idnumber = reports$duplicates_summary$idnumber
+total_duplicates = sum(nrow(duplicates_mobile),nrow(duplicates_accid),nrow(duplicates_idnumber))
+```
+
+There were `r ifelse(nrow(abovelimns)>0,nrow(abovelimns),0)` disbursments records above limit on `r Sys.Date()-1`
+
+#### Duplicates
+
+There were `r ifelse(total_duplicates > 0,total_duplicates,'no')` duplicated disbursement records by National IDs,Phone Numbers or Account IDs.Details in the attachment.
+
+#### Disbursements
+
+Below is a summary of current month and previous day disbursement report respectively.
+
+##### Cumulative Disbursement as at `r Sys.Date()-1`
+
+```{r month disbursement,fig.align="center", echo = FALSE,fig.width = 10,fig.height = 5}
+reports$disb_summ$month_disb %>% 
+    filter(!grepl('Total',Channel)) %>%
+    mutate(Amount=parse_number(Amount)) %>% 
+    ggplot(aes(reorder(Product,Amount),Amount))+
+    geom_col(fill='purple')+
+    facet_wrap(Channel ~ .,scales = 'free') +
+    labs(x = "Product",y="Amount(In Millions)")+
+    theme(axis.text.x  = element_text(angle=45,vjust = .5,hjust = .5)) +
+    scale_y_continuous(labels = scales::unit_format(unit = "M", scale = 1e-6))+
+    geom_text(
+        aes(label = ifelse(Amount >0,paste(format(round(Amount/1000000,2), big.mark = ","),"M"),Amount)),
+        position = position_dodge(width = 0.5),
+        hjust = .5,vjust = -0.5,colour = "black",size = 2
+  )
+```
+
+##### Day Disbursement for `r Sys.Date()-1`
+
+```{r day disb ,fig.align="center", echo = FALSE,fig.width = 10,fig.height = 5}
+reports$disb_summ$day_disb %>% 
+    filter(!grepl('Total',Channel)) %>%
+    mutate(Amount=parse_number(Amount)) %>% 
+    ggplot(aes(reorder(Product,Amount),Amount))+
+    geom_col(fill='purple')+
+    facet_wrap(Channel ~ .,scales = 'free') +
+    labs(x = "Product",y="Amount(In Millions)")+
+    theme(axis.text.x  = element_text(angle=45,vjust = .5,hjust = .5)) +
+    scale_y_continuous(labels = scales::unit_format(unit = "M", scale = 1e-6))+
+    geom_text(
+        aes(label = ifelse(Amount >0,paste(format(round(Amount/1000000,2), big.mark = ","),"M"),Amount)),
+        position = position_dodge(width = 0.5),
+        hjust = .5,vjust = -0.5,colour = "black",size = 2
+  )
+```
+
+
+Kind regards,
+
+[!Signature](/temp/signature.jpg)
+
+```{r}
+
+# mbanalytics::maisha_email_push2(
+#     to = "george.oduor@maishabank.com",
+#     Recipient = "",Subject = "TEST",
+#     from = "george.oduor@maishabank.com",
+#     message = paste0(readLines("email2.html"),collapse = ""),
+#     Sender = "George",test = F,
+#     credfile = "E:/Automation/resources/george")
+
+```
+
+
+
+
