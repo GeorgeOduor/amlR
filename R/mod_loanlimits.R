@@ -62,6 +62,7 @@ mod_loanlimits_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
+
     output$controls1 <- renderUI({
       tagList(
 
@@ -84,6 +85,10 @@ mod_loanlimits_server <- function(id){
         )
 
       )
+    })
+
+    observerEvent(input$update_limits,{
+
     })
     observeEvent(input$submit_data1,{
       tryCatch(
